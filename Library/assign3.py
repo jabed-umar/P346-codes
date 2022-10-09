@@ -99,14 +99,47 @@ def Symmetric(mat):
             if (mat[i][j] != mat[j][i]):
                 return False
     return True
-#Function to make tarnspose of matrix
-def transpose(A):
-    B=[]
-    for i in range(len(A)):
-        B.append([])
-    for j in range(len(A)):
-        B[i].append(A[j][i])
-    return B
+## Chelosky Decomposition function
+def Decompose(A):
+  # finding the number of rows/columns
+ n = len(A)
+ # decmpose into upper trangular matrix
+ sum = 0
+ for i in range(n):
+  for j in range(i,n): 
+   if j == i:
+    for k in range(0,i):
+     sum = sum + A[k][i]**2
+    A[j][j]= round((A[j][j]-sum)**(0.5),4)   # rounding off to 4 decimal places
+   else:
+    A[j][i] = 0
+    for k in range(0,i): 
+     sum=sum+A[k][i]*A[k][j]
+    A[i][j]= round((A[i][j]-sum)/A[i][i],4)      
+   sum=0
+ return A 
+#Function for solving linear equations using Chelosky Decomposition     
+def cholesky(A,b):
+  # checking if the matrix is symmetric
+  if Symmetric(A) == False:
+    print("Matrix is not symmetric")
+    return 0
+  #Forward Substitution
+  sum = 0
+  A = Decompose(A)
+  n = len(A) 
+  for i in range(n):
+    for k in range(i):
+      sum=sum + A[k][i]*b[k][0]  # Taking transpose 
+    b[i][0] = round((b[i][0]-sum)/A[i][i],4)    # rounding off to 4 decimal places
+    sum=0
+  #Backward Substitution 
+  for i in range(n-1,-1,-1):
+    for k in range(i+1,n):
+        sum = sum + b[k][0]*A[i][k]  
+    b[i][0] = round((b[i][0]-sum)/A[i][i],4)   # rounding off to 4 decimal places
+    sum = 0
+  return b
 
 
 ### 3(a). solve a system of linear equation using doolittle decompose method 
