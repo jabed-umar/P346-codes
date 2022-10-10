@@ -170,7 +170,7 @@ def Gauss_seidel(A,b,e):
         x[i][0] = c 
      if y == n:   # If all elements of x follow precision condition
          break  
-    print("Number of iterations:", v+1,"\nSolution matrix X:\n") 
+    print("Number of iterations is :", v+1,"\nThe solution matrix x is:\n") 
     print(x)
 
 ### 3(a). solve a system of linear equation using doolittle decompose method 
