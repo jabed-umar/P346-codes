@@ -276,7 +276,7 @@ def Jacobi(A,b,e):
         sum=0  
      y = 0    
      C,D = D,C 
-    print("Number of iterations:",k+1,"\nSolution matrix X:\n")
+    print("Number of iterations is:",k+1,"\nThe solution matrix x is:\n")
     print(C)   
 ## Guass Seidel function to solve linear equations
 def Gauss_Seidel(A,b,e):
@@ -311,6 +311,6 @@ def Gauss_Seidel(A,b,e):
         x[i][0] = c 
      if y == n:   # If all elements of x follow precision condition
          break  
-    print("Number of iterations:", v+1,"\nSolution matrix X:\n") 
+    print("Number of iterations is:", v+1,"\nThe solution vector x is:\n") 
     print(x)
     
