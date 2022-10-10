@@ -141,6 +141,37 @@ def cholesky(A,b):
     sum = 0
   return b
 
+#### 2(b). solve a system of linear equation using gauss_seidel method without rearranging the matrix
+def Gauss_seidel(A,b,e):
+    """_summary_ : Solve a system of linear equation using Gauss Seidal method
+
+    Args:
+        A (2-array):  Square matrix of order n (n>=2) made up of coefficinets of the variables
+        b (1-array): Vector of order n made up of constants
+        e (precision): convergence criteria
+
+    Returns:
+       1_d array: Solution vector x
+    """
+    n = len(A)
+    x = [[0] for y in range(n)]       # x stores values after new iteration
+    m = 300
+    y,sum = 0,0   
+    for v in range(m):
+     y = 0
+     for i in range(n):
+        sum = 0
+        for j in range(n): 
+            if j!= i:
+             sum += A[i][j]*x[j][0] 
+        c=(b[i][0]-sum)/A[i][i]
+        if abs(c-x[i][0]) < (10**(-e)):    #Precision condition
+            y += 1 
+        x[i][0] = c 
+     if y == n:   # If all elements of x follow precision condition
+         break  
+    print("Number of iterations:", v+1,"\nSolution matrix X:\n") 
+    print(x)
 
 ### 3(a). solve a system of linear equation using doolittle decompose method 
 def LU_decompose(A,b):
@@ -181,3 +212,105 @@ def LU_decompose(A,b):
             sum += A[i][j]*b[j]
         b[i] = (b[i] - sum)/(A[i][i])
     return b 
+
+
+### 3(b). solve a system of linear equation using Guass_Seidel method with rearranging the matrix
+#Pivoting function for producing diagonally dominant matrix
+def pivot(A):
+    """_summary_ : Pivoting function for producing diagonally dominant matrix
+
+    Args:
+        A (2-d array): sqaure matrix of order n (n>=2)
+
+    Returns:
+        2-d array : Diagonally dominant matrix
+    """
+    c = 0
+    t = 0
+    for i in range(len(A)):   #Row pivot
+     t = i                 # t stores largest element of a column
+     c = abs(A[i][i])      # taking absolute value of diagonal elements 
+     for j in range(len(A[0])):
+         if abs(A[i][j]) > c:   # checking if the element is greater than the diagonal element
+             c = abs(A[i][j])
+             t = j              
+     if t > i:
+         for k in range(len(A)):
+             A[k][i],A[k][t]= A[k][t],A[k][i]   
+     elif t < i:
+         print("Matrix is not diagonally dominant \n")
+         return 0  
+    return A
+#Jacobi and Guass-Seidal method to solve the linear equation 
+## Jacobi function     
+def Jacobi(A,b,e):
+    """_summary_ : Solve a system of linear equation using Jacobi method
+
+    Args:
+        A (2-array):  Square matrix of order n (n>=2) made up of coefficinets of the variables
+        b (1-array): Vector of order n made up of constants
+        e (precision): convergence criteria
+    Returns:
+         1_d array: Solution vector x
+    """
+    A = pivot(A)
+    if A == 0:  #From pivot function
+      print("Jacobi not possible")
+      return 0 
+    n = len(A)
+    C = [[1] for y in range(n)]       # C stores values after new iteration
+    D = [[0] for y in range(n)]        # D stores the values after last iteration
+    m = 50000                        # m stores maximum number of iterations
+    sum = 0
+    y = 1
+    for k in range(m):
+     for i in range(n):
+        for j in range(n):
+            if j != i:
+             sum = sum+A[i][j]*C[j][0]
+            if abs(D[j][0]-C[j][0]) > (10**(-e)):y=1  #Checking for precision        
+        if y==1:    
+         D[i][0]=(b[i][0]-sum)/A[i][i]
+        else:
+            break
+        sum=0  
+     y = 0    
+     C,D = D,C 
+    print("Number of iterations:",k+1,"\nSolution matrix X:\n")
+    print(C)   
+## Guass Seidel function to solve linear equations
+def Gauss_Seidel(A,b,e):
+    """_summary_ : Solve a system of linear equation using Gauss Seidal method
+
+    Args:
+        A (2-array):  Square matrix of order n (n>=2) made up of coefficinets of the variables
+        b (1-array): Vector of order n made up of constants
+        e (precision): convergence criteria
+
+    Returns:
+       1_d array: Solution vector x
+    """
+    n = len(A)
+    A = pivot(A)
+    if A == 0: # From pivot function checking the diagoanl dominance
+      print("Guass-Seidal not possible")
+      return 0
+    x = [[0] for y in range(n)]       # x stores values after new iteration
+    m = 300
+    y,sum = 0,0   
+    for v in range(m):
+     y = 0
+     for i in range(n):
+        sum = 0
+        for j in range(n): 
+            if j!= i:
+             sum += A[i][j]*x[j][0] 
+        c=(b[i][0]-sum)/A[i][i]
+        if abs(c-x[i][0]) < (10**(-e)):    #Precision condition
+            y += 1 
+        x[i][0] = c 
+     if y == n:   # If all elements of x follow precision condition
+         break  
+    print("Number of iterations:", v+1,"\nSolution matrix X:\n") 
+    print(x)
+    
