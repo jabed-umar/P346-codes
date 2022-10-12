@@ -1,4 +1,11 @@
 ###1(a). Gauss Jordan method to solve linear equation 
+## function to convert array to list 
+def array_to_list(A,b):
+    c = []
+    for i in range(0,len(A)):
+        c.append(b[0][i])
+    return c
+## Gauss_Jordan function
 def Gauss_Jordan(A,b): 
     """_summary_ : Gauss Jordan method to solve linear equation Ax=b
 
