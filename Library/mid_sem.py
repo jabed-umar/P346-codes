@@ -1,43 +1,41 @@
 ### Random Number Generator by LCG method
-def My_random(seed,n,k):
-    """This function is used to generate random number by LCG method
-    Args:
-        seed (integer): This is the seed for the random number generator
-        n (integer): Number of the of the random number 
-        k (Either 0 or anything): Just to change the range of random numbers
-    Returns:
-        Floats : list of random numbers
-    """
-    a = 1103515245 
-    c = 12345 
-    m = 32768
-    x = seed
-    rand= []                # This is the list of random numbers
-    # 100 random numbers
-    if k == 0:
-     for i in range(n):    
-    # LCG method for creating random number in the range [0,1]
-        x = (a * x + c) % m 
-        x = x/m      # Normalizing the random number
-        rand.append(x)
-    else:
-     for i in range(n):    
-    # LCG method for creating random number in the range [-1,1] 
-        x = 2*((a * x + c) % m)/m -1     # Normalizing the random number
-        rand.append(x)   
-    return rand
+# defing the class
+class Random:
+    def __init__(self, seed, range=[0,1]):
+        self.seed = seed
+        self.scale = lambda x: range[0] + x*(range[1]-range[0])
+ # defining the LCG function
+    def LCG(self, a = 1103515245, c = 12345, m = 2**32):
+        """_summary_: Linear Congruential Generator
+
+        Args:
+            a (int, optional): Defaults to 1103515245.
+            c (int, optional): Defaults to 12345.
+            m (int, optional): Defaults to 2**32.
+
+        Returns:
+           list : list of random numbers with prefered range
+        """ 
+        self.seed = (a * self.seed + c) % m
+        return self.scale(self.seed/m) 
+    
+### Main Program
 ## Calculate the area of ellipse using Monte Carlo method
 ## Area of ellipse by random number 
 def area(n):
-    x = 2*My_random(10,n,0) # Change the range x into [0,2]
-    y = My_random(10,n,0)
+    # x = My_random(0.5,n,0) # Change the range x into [0,2]
+    # y = My_random(0.6,n,0)
+    r = Random(9, [0, 2])
     inside = 0 
     # check if the point is inside the ellipse or not
     for i in range(n):
-        if x[i]**2+ 4*y[i]**2 <= 4:
-            inside += 1
+        x = r.LCG()
+        y = r.LCG()
+        # print(x, y)
+        if (x/2)**2 + (y/1)**2 <= 1:
+            inside += 4
     # calculate the volume of the ellipse
-    vol_e = 8*inside/n
+    vol_e = 4*inside/n
     return vol_e
 
 
@@ -124,8 +122,6 @@ def least_sqr_method(x,y):
     # calculate the slope and intercept
     slope = (n*sum_xy - sum_x*sum_y)/(n*sum_x2 - sum_x**2)
     intercept = (sum_y - slope*sum_x)/n
-    print("The slope of the linear fit is ", slope)
-    print("The intercept is ", intercept)
     return slope, intercept
 
 ## Calculate pearson correlation coefficient
