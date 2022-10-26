@@ -27,7 +27,7 @@ def Bracket(a,b,func,t,d):
     if x*y > 0:
         if abs(x) < abs(y):   
           return Bracket(float(a-d*(b-a)),b,func,t,d) 
-        elif abs(x)>abs(y):
+        elif abs(x) > abs(y):
           return Bracket(a,float(b+d*(b-a)),func,t,d)
       
       
@@ -54,6 +54,8 @@ def bisection(f, a, b, tol=1e-6, maxiter=1000):
     float
         The root of the function.
     """
+    # create a list to store the values of x
+    x = []    
     # check that the bounds are valid
     if f(a) * f(b) > 0:
         raise ValueError("The function must have opposite signs at the bounds.")
@@ -66,10 +68,10 @@ def bisection(f, a, b, tol=1e-6, maxiter=1000):
     for i in range(maxiter):
         # find the midpoint
         c = (a + b) / 2
-        
+        x.append(c)
         # check if the root is found
         if abs(f(c)) < tol:
-            return c
+            return x
         
         # check if the root is in the left interval
         if f(a) * f(c) < 0:
@@ -101,6 +103,8 @@ def regula_falsi(f, a, b, tol=1e-6, max_iter=100):
     x : float
         Approximate solution.
     """
+    # creat a list to store the values of y
+    y = []
     fa = f(a)
     fb = f(b)
     if fa*fb > 0:
@@ -108,8 +112,9 @@ def regula_falsi(f, a, b, tol=1e-6, max_iter=100):
     for i in range(max_iter):
         x = (a*fb - b*fa)/(fb - fa)
         fx = f(x)
+        y.append(x)
         if abs(fx) < tol:
-            return x
+            return y
         if fx*fa < 0:
             b = x
             fb = fx
@@ -118,6 +123,20 @@ def regula_falsi(f, a, b, tol=1e-6, max_iter=100):
             fa = fx
     raise RuntimeError("Maximum number of iterations exceeded.")
 
+### checking the number of iterations
+def Table(x,y,func,e):
+    
+    print("Iteration     Bisection     Regula-Falsi")
+    z = max(len(x),len(y))
+    w = min(len(x),len(y))
+    for i in range(z):
+     if i < w:
+      print("     ",i+1,"      ",x[i],"      ",y[i]) 
+     else:
+        if z==len(x):
+            print("     ",i+1,"      ",x[i])
+        else:
+            print("      ",i+1,"         ",y[i])
 
 ##### Newton-Raphson method of root finding
 
@@ -149,70 +168,111 @@ def newton_raphson(f, df, x0, tol=1e-6, maxiter=100):
     # if no convergence bcz of bad guess or bad function, return None
     raise ValueError("Failed to converge after %d iterations" % maxiter)
 
-#### laguerre and synthetic division method of root finding
 
-#To create fucntion
+#### laguerre and synthetic division method of root finding  
+
+#To create fucntion for laguerre method
 def Makefunc(c,j):
-    n=len(c)
-    y=0
+    n = len(c)
+    """Find the value of the function at a given point.
+
+    Args:
+        c (array): co-efficients of the polynomial.
+        j (float): point at which the function is to be evaluated.
+
+    Returns:
+        float: Value of the function at the given point.
+    """
+    y = 0.0
     for i in range(n):
-        y=y+c[i](j*(n-i-1))
-    return y             
-#For Differentiation
+        y = y + c[i]*(j**(n-i-1))
+    return y
+            
+#For Differentiation of the function
+ 
 def Diff(c):
-    n=len(c)
-    m=[]
-    for i in range(n):
+    """co-efficients of the derivative of the polynomial.
+
+    Args:
+        c (Array): list of co-efficients of the polynomial.
+
+    Returns:
+        array: co-efficients of the derivative of the polynomial.
+    """
+    n = len(c)
+    # create an empty list to store the co-efficients of the derivative
+    m = []
+    for i in range(n-1):
         m.append(c[i]*(n-1-i))
-    m.pop()  
-    return m    
-#To deflation
+    return m
+        
+      
+#To deflation of the function
+ 
 def deflate(c,b):
-    m=[]
+    """Deflation of the polynomial.
+
+    Args:
+        c (array): co-efficients of the polynomial.
+        b (float): root of the polynomial.
+
+    Returns:
+        array: quotient of the polynomial.
+    """
+    # create an empty list to store the co-efficients of the quotient
+    m = []
     m.append(c[0])
     for i in range(1,len(c)-1):
         m.append(c[i]+b*m[i-1])
-    return m     
-#Laguerre   
-v = 0.001
-def Lag(b,c):
-    n = len(c)
-    l = 0
-    j=0
-    G,H=0,0
+    return m  
     
-    #X= lambda x : Makefunc(x)
-    #Y= lambda y : X(Diff(y))
-    #Z= lambda z : Y(Diff(z))
+#Laguerre method of root finding  
 
-    if Makefunc(c,b)==0:
+def Laguerre(c,b,e):
+    """laguerre method of root finding.
+
+    Args:
+        b (float): initial guess.
+        c (array): co-efficients of the polynomial.
+        v(float): tolerance.
+    Returns:
+       float : root of the polynomial.
+    """
+    n = len(c)
+    l = r = 0
+    j = 0
+    G,H = 0,0
+    
+    if Makefunc(c,b) == 0:
         return b
-        
-    while abs(b-l) > v :
-        j=j+1
-        l=b
-        G=Makefunc(Diff(c),b)/Makefunc(c,b)
-        H=G**2-Makefunc(Diff(Diff(c)),b)/Makefunc(c,b)
-
-        if G>0:
-            b=b-(n/(G-math.sqrt((n-1)(n*H-G*2))))
+    # iterate until the root is found  
+    while abs(b-l)>10**(-e):
+        j = j+1
+        l = b
+        G = Makefunc(Diff(c),b)/Makefunc(c,b)
+        H = G**2-Makefunc(Diff(Diff(c)),b)/Makefunc(c,b)
+        r = math.sqrt((n-1)*(n*H-G**2))
+      
+        if abs(G-r) > abs(G+r):
+            b = b-(n/(G-r))
         else:
-            b=b-(n/(G+math.sqrt((n-1)(n*H-G*2))))
-          
-    if Makefunc(c,b)<v:
-        print(j)
-        return b
-            
-def Solve(b,c):
-    g=[]
-    t=0
-    while len(c)>2:
-        b=Lag(b,c)
-        g.append(b)
-        c=deflate(c,b)
-    print(g)
+            b = b-(n/(G+r))
 
-#### Least square fit for any polynomial
+    # print("Root:",b,", Iteration: ",j,"\n")
+    return b
+            
+# solving the polynomial using laguerre method
+def Solve(c,b,e):
+    g=[]
+    while len(c)>2:
+        b = Laguerre(c,b,e)
+        g.append(b)
+        c = deflate(c,b)  
+    g.append(-c[1]/c[0]) 
+    print("Roots are:",g)    
+    
+    
+#### Least square fit for any polynomial of degree n
 
 def least_square_method(x, y, n):
     # n is the degree of the polynomial
