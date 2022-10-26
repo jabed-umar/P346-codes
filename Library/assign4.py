@@ -269,7 +269,7 @@ def Solve(c,b,e):
         g.append(b)
         c = deflate(c,b)  
     g.append(-c[1]/c[0]) 
-    print("Roots are:",g)    
+    print("Roots of the polynomial is :",g)    
     
     
 #### Least square fit for any polynomial of degree n
@@ -295,13 +295,13 @@ def least_square_method(x, y, n):
         raise TypeError("y must be a list")
     if len(x) != len(y):
         raise ValueError("x and y must have the same length")
-    # initializing the matrix
+    # initializing the matrix 
     matrix = []
     for i in range(n+1):
         matrix.append([])
         for j in range(n+1):
             matrix[i].append(0)
-    # initializing the vector
+    # initializing the vector 
     vector = []
     for i in range(n+1):
         vector.append(0)
@@ -312,7 +312,9 @@ def least_square_method(x, y, n):
                 matrix[i][j] += x[k]**(i+j)
         for k in range(len(x)):
             vector[i] += y[k]*x[k]**i
-    # solving the matrix equation
+    # solving the matrix equation to find the coefficients of the polynomial
+    # calling the gaussian elimination method to calculate the coefficients
     return a3.Gauss_Jordan(matrix, vector)
+
 
     
