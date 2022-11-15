@@ -1,4 +1,3 @@
-
 ### integration by mid point method 
 def midpoint(f, a, b, n):
     h = (b-a)/n
@@ -18,7 +17,8 @@ def trapezoidal(f, a, b, n):
     print ("For n =", n)
     return s*h
 
-#3)Simpson Methode
+
+### Integration by Simpson Method
 def simpson(f, x, y, n,flag):
         # calculating n 
         #flag is used to gice output depending on requirement 
@@ -38,7 +38,7 @@ def simpson(f, x, y, n,flag):
         else:
             return round(t,9)
 
-# integration by Monte Carlo method
+### integration by Monte Carlo method
 import random
 def monte_carlo(f, a, b, n):
     s = 0
