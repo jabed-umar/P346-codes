@@ -34,7 +34,7 @@ def simpson(f, x, y, n,flag):
                 sn = sn + 4 * f(x)
         t = (h / 3) * sn
         if flag ==True :
-            print("Integration of the given function for ", n ,":",round(t,9))
+            print("Integration of the given function for n = ", n ,"is :",round(t,9))
         else:
             return round(t,9)
 
