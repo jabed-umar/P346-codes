@@ -161,9 +161,24 @@ def heat_equation(temp0:callable, L: float, T:float, nL:int, nT:int, t_upto:int 
 ### ------------------------------ Shooting method
 # RK for shooting method
 def rk_shoot(d2ydx2, dydx, x0, y0, z0, xf, h):
+    """shooting method using RK4.
+
+    Args:
+        d2ydx2 (array): derivative of the second order.
+        dydx (array): derivative of the first order.
+        x0 (float): initial value of x.
+        y0 (float): initial value of y.
+        z0 (float): initial value of z.
+        xf (float): final value of x.
+        h (float): strip size.
+
+    Returns:
+        array: solution of the differential equation.
+    """
     x = [x0]
     y = [y0]
     z = [z0]
+    # no of strips
     N = int((xf-x0)/h)
     for i in range(N):
         k1 = h * dydx(x[i], y[i], z[i])
@@ -182,7 +197,6 @@ def rk_shoot(d2ydx2, dydx, x0, y0, z0, xf, h):
         y.append(y[i] + (k1 + 2*k2 + 2*k3 + k4)/6)
         z.append(z[i] + (l1 + 2*l2 + 2*l3 + l4)/6)
     return x, y, z
-
 
 # Lagrange interpolation for the intrpolation part 
 def lag_inter(zeta_h, zeta_l, yh, yl, y):
@@ -221,6 +235,6 @@ def shoot(d2ydx2, dydx, x0, y0, xf, yf, z1, z2, h, tol=1e-6):
                     d2ydx2, dydx, x0, y0, zeta, xf, h)
                 return x, y
             else:
-                print("Invalid bracketig.")
+                print("Invalid bracketing.")
     else:
         return x, y
