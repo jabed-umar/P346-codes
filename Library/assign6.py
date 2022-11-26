@@ -121,3 +121,39 @@ def powr_iter(A,x0,e):
     for i in range(len(y)):
         y[i][0] /= sum
     return y, k1
+
+### Solving the 1-d heat equation 
+def heat_equation(temp0:callable, L: float, T:float, nL:int, nT:int, t_upto:int = None):
+    """Solves the heat equation 
+
+    Args:
+        temp0 (callable): initial temperature distribution.
+        L (float): length of the rod.
+        T (float): time period.
+        nL (int): no. of strips in the length.
+        nT (int): no. of strips in the time.
+        t_upto (int): time upto which the solution is to be plotted. default is nT.
+
+    Returns:
+        2D list: solution of the heat equation.
+    """
+    if t_upto is None: t_upto = nT
+    
+    ht = T/nT
+    hx = L/nL
+    alpha = ht/(hx**2)
+    # print(alpha)
+    
+    A = [[0 for i in range(nL)] for j in range(t_upto)]
+    for i in range(nL):
+        A[0][i] = temp0(i, nL)
+    
+    for t in range(1, t_upto):
+        for x in range(nL):
+            if x == 0:
+                A[t][x] = A[t-1][x]*(1-2*alpha) + A[t-1][x+1]*alpha
+            elif x == nL-1:
+                A[t][x] = A[t-1][x-1]*alpha + A[t-1][x]*(1-2*alpha)
+            else:
+                A[t][x] = A[t-1][x-1]*alpha + A[t-1][x]*(1-2*alpha) + A[t-1][x+1]*alpha
+    return A
