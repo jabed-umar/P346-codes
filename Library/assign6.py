@@ -184,13 +184,13 @@ def rk_shoot(d2ydx2, dydx, x0, y0, z0, xf, h):
     return x, y, z
 
 
-# Lagrange interpolation
-def lag_interpol(zeta_h, zeta_l, yh, yl, y):
+# Lagrange interpolation for the intrpolation part 
+def lag_inter(zeta_h, zeta_l, yh, yl, y):
     zeta = zeta_l + (zeta_h - zeta_l) * (y - yl)/(yh - yl)
     return zeta
 
-
-def shoot(d2ydx2, dydx, x0, y0, xf, yf, z1, z2, h, tol=1e-6):  # Shooting method
+# Shooting method for solving the 2nd order ODE
+def shoot(d2ydx2, dydx, x0, y0, xf, yf, z1, z2, h, tol=1e-6):  
     x, y, z = rk_shoot(d2ydx2, dydx, x0, y0, z1, xf, h)
     yn = y[-1]
     if abs(yn - yf) > tol:
@@ -202,7 +202,7 @@ def shoot(d2ydx2, dydx, x0, y0, xf, yf, z1, z2, h, tol=1e-6):  # Shooting method
             if yn > yf:
                 zeta_h = z2
                 yh = yn
-                zeta = lag_interpol(zeta_h, zeta_l, yh, yl, yf)
+                zeta = lag_inter(zeta_h, zeta_l, yh, yl, yf)
                 x, y, z = rk_shoot(
                     d2ydx2, dydx, x0, y0, zeta, xf, h)
                 return x, y
@@ -216,7 +216,7 @@ def shoot(d2ydx2, dydx, x0, y0, xf, yf, z1, z2, h, tol=1e-6):  # Shooting method
             if yn < yf:
                 zeta_l = z2
                 yl = yn
-                zeta = lag_interpol(zeta_h, zeta_l, yh, yl, yf)
+                zeta = lag_inter(zeta_h, zeta_l, yh, yl, yf)
                 x, y, z = rk_shoot(
                     d2ydx2, dydx, x0, y0, zeta, xf, h)
                 return x, y
