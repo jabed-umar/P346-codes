@@ -1,5 +1,5 @@
 
-### Solving the differential equation using the Runge-Kutta method
+### ------------------- Solving the differential equation using the Runge-Kutta method
 
 def rk_4(d2ydx2, dydx, x0, y0, z0, xf, h):
     """Runge-Kutta 4th order method for solving 2nd order ODEs.
@@ -86,7 +86,7 @@ def dot(A,B):
         sum += A[0][i]*B[0][i]
     return sum
 
-### Function for returning dominant eigenvalue and corresponding eigenvector
+### ----------------------------- Function for returning dominant eigenvalue and corresponding eigenvector
 def powr_iter(A,x0,e):
     """Find dominant eigenvalue and corresponding eigenvector.
 
@@ -122,7 +122,7 @@ def powr_iter(A,x0,e):
         y[i][0] /= sum
     return y, k1
 
-### Solving the 1-d heat equation 
+### --------------------------------- Solving the 1-d heat equation 
 def heat_equation(temp0:callable, L: float, T:float, nL:int, nT:int, t_upto:int = None):
     """Solves the heat equation 
 
@@ -157,3 +157,70 @@ def heat_equation(temp0:callable, L: float, T:float, nL:int, nT:int, t_upto:int 
             else:
                 A[t][x] = A[t-1][x-1]*alpha + A[t-1][x]*(1-2*alpha) + A[t-1][x+1]*alpha
     return A
+
+### ------------------------------ Shooting method
+# RK for shooting method
+def rk_shoot(d2ydx2, dydx, x0, y0, z0, xf, h):
+    x = [x0]
+    y = [y0]
+    z = [z0]
+    N = int((xf-x0)/h)
+    for i in range(N):
+        k1 = h * dydx(x[i], y[i], z[i])
+        l1 = h * d2ydx2(x[i], y[i], z[i])
+
+        k2 = h * dydx(x[i] + h/2, y[i] + k1/2, z[i] + l1/2)
+        l2 = h * d2ydx2(x[i] + h/2, y[i] + k1/2, z[i] + l1/2)
+
+        k3 = h * dydx(x[i] + h/2, y[i] + k2/2, z[i] + l2/2)
+        l3 = h * d2ydx2(x[i] + h/2, y[i] + k2/2, z[i] + l2/2)
+
+        k4 = h * dydx(x[i] + h, y[i] + k3, z[i] + l3)
+        l4 = h * d2ydx2(x[i] + h, y[i] + k3, z[i] + l3)
+
+        x.append(x[i] + h)
+        y.append(y[i] + (k1 + 2*k2 + 2*k3 + k4)/6)
+        z.append(z[i] + (l1 + 2*l2 + 2*l3 + l4)/6)
+    return x, y, z
+
+
+# Lagrange interpolation
+def lag_interpol(zeta_h, zeta_l, yh, yl, y):
+    zeta = zeta_l + (zeta_h - zeta_l) * (y - yl)/(yh - yl)
+    return zeta
+
+
+def shoot(d2ydx2, dydx, x0, y0, xf, yf, z1, z2, h, tol=1e-6):  # Shooting method
+    x, y, z = rk_shoot(d2ydx2, dydx, x0, y0, z1, xf, h)
+    yn = y[-1]
+    if abs(yn - yf) > tol:
+        if yn < yf:
+            zeta_l = z1
+            yl = yn
+            x, y, z = rk_shoot(d2ydx2, dydx, x0, y0, z2, xf, h)
+            yn = y[-1]
+            if yn > yf:
+                zeta_h = z2
+                yh = yn
+                zeta = lag_interpol(zeta_h, zeta_l, yh, yl, yf)
+                x, y, z = rk_shoot(
+                    d2ydx2, dydx, x0, y0, zeta, xf, h)
+                return x, y
+            else:
+                print("Invalid bracketing.")
+        elif yn > yf:
+            zeta_h = z1
+            yh = yn
+            x, y, z = rk_shoot(d2ydx2, dydx, x0, y0, z2, xf, h)
+            yn = y[-1]
+            if yn < yf:
+                zeta_l = z2
+                yl = yn
+                zeta = lag_interpol(zeta_h, zeta_l, yh, yl, yf)
+                x, y, z = rk_shoot(
+                    d2ydx2, dydx, x0, y0, zeta, xf, h)
+                return x, y
+            else:
+                print("Invalid bracketig.")
+    else:
+        return x, y
