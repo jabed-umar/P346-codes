@@ -1,4 +1,4 @@
-
+import matplotlib.pyplot as plt
 ### 3.------------------------ Newton Raphson method
 def newton_raphson(f, df, x0, tol=1e-6, maxiter=100):
     """Newton-Raphson method of root finding.
@@ -204,76 +204,143 @@ def range_kutta_fourth(f, x0, y0, h, n):
     return x,y
 ## 2. --------------------------- Function for the equilibria of the system
 ### ----------- Random Number Generator by LCG method
-import matplotlib.pyplot as plt
-
-class Random:
-    def __init__(self, seed: float = 0.1, range: list = [0,1]):
-        """Random number generator.
-        Args:
-            seed (float, optional): Initial Seed. Defaults to 0.1.
-        """
-        self.seed = seed
-        self.scale = lambda x: range[0] + x*(range[1]-range[0])
-
-    def rand(self, c = 3.5):
-        """A function to generate a random number by using the formula:
-            X[n+1] = c * X[n] * (1- X[n]).
-            
-        Args:
-            c (float, optional): Defaults to 3.5.
-            
-        Returns:
-            float: a random number between 0 and 1.
-        """
-        self.seed = c*self.seed*(1-self.seed)
-        return self.seed
-
-    def LCG(self, a = 1103515245, c = 12345, m = 32768):  # LCG
-        self.seed = (a*self.seed + c) % m
-        return self.scale(self.seed / m)
+def My_random(seed,n,k):
+    """This function is used to generate random number by LCG method
+    Args:
+        seed (integer): This is the seed for the random number generator
+        n (integer): Number of the of the random number 
+        k (Either 0 or anything): Just to change the range of random numbers
+    Returns:
+        Floats : list of random numbers
+    """
+    a = 1103515245 
+    c = 12345 
+    m = 32768
+    x = seed
+    rand= []                # This is the list of random numbers
+    # 100 random numbers
+    if k == 0:
+     for i in range(n):    
+    # LCG method for creating random number in the range [0,1]
+        x = (a * x + c) % m 
+        x = x/m      # Normalizing the random number
+        rand.append(x)
+    else:
+     for i in range(n):    
+    # LCG method for creating random number in the range [-1,1] 
+        x = 2*((a * x + c) % m)/m -1     # Normalizing the random number
+        rand.append(x)   
+    return rand
+   
+## 1.____________________________________________Finding inverse by LU decompose method
+# forward and backward substitution
+def for_back_subs(mat_L, mat_U, vec_B):
+    #initialize two vectors to store the solution
+    x = [0] * len(mat_U[0])
+    y = [0] * len(mat_L[0])
     
-    
-# 1.  ---------------------------------Lu decomposition of given matrix
-def LU(A):
-    n = len(A)
-    L = [[0.0] * n for i in range(n)]
-    U = [[0.0] * n for i in range(n)]
-    for i in range(n):
-        L[i][i] = 1.0
-        for j in range(i, n):
-            s1 = sum(U[k][j] * L[i][k] for k in range(i))
-            U[i][j] = A[i][j] - s1
-        for j in range(i, n):
-            if i == j:
-                L[i][i] = 1.0
-            else:
-                s2 = sum(U[k][i] * L[j][k] for k in range(i))
-                L[j][i] = (A[j][i] - s2) / U[i][i]
-    return L, U
-
-# checking the inverse of the matrix 
-# determinant of a given matrix 
-def determinant(A):
-    # LU decomposition
-    L, U = LU(A)
-    # determinant of A
-    det = 1
-    for i in range(len(A)):
-        det *= L[i][i] * U[i][i]
-    return det
-
-# inverse of a given matrix
-def inverse(A):
-    # LU decomposition
-    L, U = LU(A)
-    # inverse of A
-    inv = [[0.0] * len(A) for i in range(len(A))]
-    for i in range(len(A)):
-        inv[i][i] = 1.0 / L[i][i]
+    #forward substitution    
+    for i in range(len(mat_L)):
+        sum = 0
         for j in range(i):
-            s = sum(U[k][j] * inv[i][k] for k in range(j))
-            inv[i][j] = -s / L[j][j]
-        for j in range(i + 1, len(A)):
-            s = sum(U[k][j] * inv[i][k] for k in range(i))
-            inv[i][j] = -s / L[i][i]
-    return inv
+            sum += mat_L[i][j]*y[j]
+        y[i] = vec_B[i] - sum
+
+    #backward substitution (loop should run in reverse)
+    for i in reversed(range(len(mat_U))):
+        sum = 0
+        for j in reversed(range(i, len(mat_U[0]))):
+            sum += mat_U[i][j]*x[j]
+        x[i] = (y[i] - sum)/mat_U[i][i]
+    return x
+# LU decompose method
+def LU(A):
+    """_summary_: LU decomposition of a matrix
+
+    Args:
+        mat_A (array): given matrix
+
+    Returns:
+        arrys: L and U matrices
+    """
+    n = len(A)
+    #initialize empty matrix to store decomposed matrices
+    L = [[0 for x in range(n)] for y in range(n)] 
+    U = [[0 for x in range(n)] for y in range(n)]
+
+    #loop through every columns of A 
+    for i in range(len(A)):
+        #Diagonal entries of L matrix are all 1
+        L[i][i] = 1
+
+        #Upper triangular matrix
+        for k in range(i, len(A[0])):
+            sum = 0
+            for j in range(i): 
+                sum += (L[i][j] * U[j][k])
+  
+            U[i][k] = A[i][k] - sum
+
+        #Lower triangular matrix
+        for k in range(i+1, len(A[0])):             
+            sum = 0 
+            for j in range(i): 
+                sum += (L[k][j] * U[j][i]) 
+            
+            #The order of element is reversed from i,k to k,i
+            L[k][i] = (A[k][i] - sum) / U[i][i] 
+  
+    return L,U
+# inverse of a matrix cheking by the determinant
+def check_inverse(C):
+    """_summary_: Check if the inverse of a matrix exist by determinant checking
+
+    Args:
+        mat_U (array): given matrix
+
+    Raises:
+        Warning: if determinant is 0
+
+    Returns:
+        Bool: If the inverse exist return True, else return False
+    """
+    det = 1
+    for i in range(len(C)):
+        det = det*C[i][i]
+
+    if det == 0:
+        raise Warning("Inverse of the matrix does not exist")
+        return False
+    
+    else:
+        return True
+# finding the inverse of a matrix
+def matrix_inverse(mat_A):
+    """_summary_: Inverse of a matrix
+
+    Args:
+        mat_A (array): given matrix 
+
+    Returns:
+        array: inverse of the given matrix
+    """
+    # check the no of rows and columns
+    n = len(mat_A)
+    # initialise the inverse matrix with 0
+    inverse_matrix = [[0 for x in range(n)] for y in range(n)] 
+    # calling LU decomposition function to decompose A into L and U
+    L,U = LU(mat_A)
+    #Check if the inverse exist
+    if check_inverse(U) == True:
+        for i in range(n):
+            #initialize vector with ith value 1, rest 0
+            B = [0 for x in range(n)]
+            B[i] = 1
+            column = for_back_subs(L, U, B)
+            #Store the solution column wise
+            for j in range(n):
+                inverse_matrix[j][i] = round(column[j], 3)
+        return inverse_matrix
+
+    else:
+        return None    
