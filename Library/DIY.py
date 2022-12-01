@@ -118,7 +118,7 @@ def variance(X):
 
 ## ------------------------------------------- image compression function for gray scale image
 #--------- with numpy inbuilt matrix multiplication function
-def compress_grey_1(rank,A):
+def compress_grey(rank,A):
     """_summary_ : This function is used to compress the image by using the rank of the image
 
     Args:
@@ -132,25 +132,9 @@ def compress_grey_1(rank,A):
     # plt.imshow(compress_a, cmap = "gray")
 
 
-#--------- with my own matrix multiplication function
-def compress_grey_2(rank,A):
-    """_summary_ : This function is used to compress the image by using the rank of the image
-
-    Args:
-        rank (int): The rank of the image
-        A (array): The matrix of the image
-    """
-    U,S,Vt = SVD(A)
-    a = matrix_product(U,S)
-    compress_grey = np.array(matrix_product(a,Vt))  # @ is used for matrix multiplication
-    compress_grey = compress_grey.astype(int)
-    return compress_grey
-    # plt.imshow(compress_a, cmap = "gray")
-
-
 # ------------------------------------------- image compression function for color 
 # with numpy inbuilt matrix multiplication function
-def compress_color_1(rank,R,G,B):
+def compress_color_a(rank,R,G,B):
     """_summary_ : This function is used to compress the image by using the rank of the image
 
     Args:
@@ -183,8 +167,9 @@ def compress_color_1(rank,R,G,B):
     #plt.imshow(compressed_array)
     
     
+
 # with my own multiplication function
-def compress_color_2(rank,R,G,B):
+def compress_color_b(rank,R,G,B):
     """_summary_ : This function is used to compress the image by using the rank of the image
 
     Args:
